@@ -12,11 +12,19 @@
  
 %%
 
-[0-9]+         { /* int */ yylval =  atoi(/* char* */ yytext);  return NUMBER; } 
+[0-9]+         { yylval = atoi(yytext); return NUMBER; } 
+"sin"          return SIN;
+"cos"          return COS;
 "*"            return TIMES;
 "+"            return PLUS;
+"-"            return MINUS;
+"/"            return DIVIDE;
+"**"           return POWER;
 =              return EQUAL;
-.              /* remove other characters */
+"("            return '(';
+")"            return ')';
+[ \t\n]        { }
+.              { }
               
 
 %%

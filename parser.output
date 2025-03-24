@@ -4,31 +4,54 @@ Grammar
 
     1 total: expression EQUAL
 
-    2 expression: expression expression PLUS
-    3           | expression expression TIMES
-    4           | NUMBER
+    2 expression: expression PLUS term
+    3           | expression MINUS term
+    4           | term
+
+    5 term: term TIMES factor
+    6     | term DIVIDE factor
+    7     | factor
+
+    8 factor: factor POWER factor
+    9       | SIN '(' expression ')'
+   10       | COS '(' expression ')'
+   11       | NUMBER
+   12       | '(' expression ')'
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
+    '(' (40) 9 10 12
+    ')' (41) 9 10 12
     error (256)
-    PLUS (258) 2
-    TIMES (259) 3
-    NUMBER (260) 4
-    EQUAL (261) 1
+    NUMBER (258) 11
+    PLUS (259) 2
+    MINUS (260) 3
+    TIMES (261) 5
+    DIVIDE (262) 6
+    POWER (263) 8
+    EQUAL (264) 1
+    SIN (265) 9
+    COS (266) 10
 
 
 Nonterminals, with rules where they appear
 
-    $accept (7)
+    $accept (14)
         on left: 0
-    total (8)
+    total (15)
         on left: 1
         on right: 0
-    expression (9)
+    expression (16)
         on left: 2 3 4
-        on right: 1 2 3
+        on right: 1 2 3 9 10 12
+    term (17)
+        on left: 5 6 7
+        on right: 2 3 4 5 6
+    factor (18)
+        on left: 8 9 10 11 12
+        on right: 5 6 7 8
 
 
 State 0
@@ -36,74 +59,298 @@ State 0
     0 $accept: . total $end
 
     NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
 
-    total       go to state 2
-    expression  go to state 3
+    total       go to state 5
+    expression  go to state 6
+    term        go to state 7
+    factor      go to state 8
 
 
 State 1
 
-    4 expression: NUMBER .
+   11 factor: NUMBER .
 
-    $default  reduce using rule 4 (expression)
+    $default  reduce using rule 11 (factor)
 
 
 State 2
 
-    0 $accept: total . $end
+    9 factor: SIN . '(' expression ')'
 
-    $end  shift, and go to state 4
+    '('  shift, and go to state 9
 
 
 State 3
 
-    1 total: expression . EQUAL
-    2 expression: expression . expression PLUS
-    3           | expression . expression TIMES
+   10 factor: COS . '(' expression ')'
 
-    NUMBER  shift, and go to state 1
-    EQUAL   shift, and go to state 5
-
-    expression  go to state 6
+    '('  shift, and go to state 10
 
 
 State 4
+
+   12 factor: '(' . expression ')'
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    expression  go to state 11
+    term        go to state 7
+    factor      go to state 8
+
+
+State 5
+
+    0 $accept: total . $end
+
+    $end  shift, and go to state 12
+
+
+State 6
+
+    1 total: expression . EQUAL
+    2 expression: expression . PLUS term
+    3           | expression . MINUS term
+
+    PLUS   shift, and go to state 13
+    MINUS  shift, and go to state 14
+    EQUAL  shift, and go to state 15
+
+
+State 7
+
+    4 expression: term .
+    5 term: term . TIMES factor
+    6     | term . DIVIDE factor
+
+    TIMES   shift, and go to state 16
+    DIVIDE  shift, and go to state 17
+
+    $default  reduce using rule 4 (expression)
+
+
+State 8
+
+    7 term: factor .
+    8 factor: factor . POWER factor
+
+    POWER  shift, and go to state 18
+
+    $default  reduce using rule 7 (term)
+
+
+State 9
+
+    9 factor: SIN '(' . expression ')'
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    expression  go to state 19
+    term        go to state 7
+    factor      go to state 8
+
+
+State 10
+
+   10 factor: COS '(' . expression ')'
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    expression  go to state 20
+    term        go to state 7
+    factor      go to state 8
+
+
+State 11
+
+    2 expression: expression . PLUS term
+    3           | expression . MINUS term
+   12 factor: '(' expression . ')'
+
+    PLUS   shift, and go to state 13
+    MINUS  shift, and go to state 14
+    ')'    shift, and go to state 21
+
+
+State 12
 
     0 $accept: total $end .
 
     $default  accept
 
 
-State 5
+State 13
+
+    2 expression: expression PLUS . term
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    term    go to state 22
+    factor  go to state 8
+
+
+State 14
+
+    3 expression: expression MINUS . term
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    term    go to state 23
+    factor  go to state 8
+
+
+State 15
 
     1 total: expression EQUAL .
 
     $default  reduce using rule 1 (total)
 
 
-State 6
+State 16
 
-    2 expression: expression . expression PLUS
-    2           | expression expression . PLUS
-    3           | expression . expression TIMES
-    3           | expression expression . TIMES
+    5 term: term TIMES . factor
 
-    PLUS    shift, and go to state 7
-    TIMES   shift, and go to state 8
     NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
 
-    expression  go to state 6
+    factor  go to state 24
 
 
-State 7
+State 17
 
-    2 expression: expression expression PLUS .
+    6 term: term DIVIDE . factor
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    factor  go to state 25
+
+
+State 18
+
+    8 factor: factor POWER . factor
+
+    NUMBER  shift, and go to state 1
+    SIN     shift, and go to state 2
+    COS     shift, and go to state 3
+    '('     shift, and go to state 4
+
+    factor  go to state 26
+
+
+State 19
+
+    2 expression: expression . PLUS term
+    3           | expression . MINUS term
+    9 factor: SIN '(' expression . ')'
+
+    PLUS   shift, and go to state 13
+    MINUS  shift, and go to state 14
+    ')'    shift, and go to state 27
+
+
+State 20
+
+    2 expression: expression . PLUS term
+    3           | expression . MINUS term
+   10 factor: COS '(' expression . ')'
+
+    PLUS   shift, and go to state 13
+    MINUS  shift, and go to state 14
+    ')'    shift, and go to state 28
+
+
+State 21
+
+   12 factor: '(' expression ')' .
+
+    $default  reduce using rule 12 (factor)
+
+
+State 22
+
+    2 expression: expression PLUS term .
+    5 term: term . TIMES factor
+    6     | term . DIVIDE factor
+
+    TIMES   shift, and go to state 16
+    DIVIDE  shift, and go to state 17
 
     $default  reduce using rule 2 (expression)
 
 
-State 8
+State 23
 
-    3 expression: expression expression TIMES .
+    3 expression: expression MINUS term .
+    5 term: term . TIMES factor
+    6     | term . DIVIDE factor
+
+    TIMES   shift, and go to state 16
+    DIVIDE  shift, and go to state 17
 
     $default  reduce using rule 3 (expression)
+
+
+State 24
+
+    5 term: term TIMES factor .
+    8 factor: factor . POWER factor
+
+    POWER  shift, and go to state 18
+
+    $default  reduce using rule 5 (term)
+
+
+State 25
+
+    6 term: term DIVIDE factor .
+    8 factor: factor . POWER factor
+
+    POWER  shift, and go to state 18
+
+    $default  reduce using rule 6 (term)
+
+
+State 26
+
+    8 factor: factor . POWER factor
+    8       | factor POWER factor .
+
+    POWER  shift, and go to state 18
+
+    $default  reduce using rule 8 (factor)
+
+
+State 27
+
+    9 factor: SIN '(' expression ')' .
+
+    $default  reduce using rule 9 (factor)
+
+
+State 28
+
+   10 factor: COS '(' expression ')' .
+
+    $default  reduce using rule 10 (factor)
